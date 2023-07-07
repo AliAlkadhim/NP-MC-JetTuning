@@ -1,0 +1,10 @@
+Executable  =/nfs/dust/cms/user/aalkadhi/PYTHIA_STANDALONE/some_run/pythia_parallel.sh
+Arguments  = $(Process)
+Log = rivet_log/log_$(Process).txt
+
+Output = rivet_out/out_$(Process).txt
+
+Error = rivet_error/err_$(Process).txt
+#+RequestRunTime=500000
+Queue 1000
+#priority=0
