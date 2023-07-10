@@ -2,9 +2,13 @@
 #include "Rivet/Analysis.hh"
 #include "Rivet/Projections/FinalState.hh"
 #include "Rivet/Projections/FastJets.hh"
-#include "Rivet/Projections/DressedLeptons.hh"
-#include "Rivet/Projections/MissingMomentum.hh"
-#include "Rivet/Projections/DirectFinalState.hh"
+#include "Rivet/Projections/SmearedJets.hh"
+#include "Rivet/Projections/Smearing.hh"
+#include "Rivet/Tools/BinnedHistogram.hh"
+
+
+#include <TTree.h>
+#include <TFile.h>
 
 namespace Rivet {
 
@@ -66,21 +70,19 @@ namespace Rivet {
     void analyze(const Event& event) {
 
       // Retrieve dressed leptons, sorted by pT
-      vector<DressedLepton> leptons = apply<DressedLeptons>(event, "leptons").dressedLeptons();
+      Particles leptons = apply<FinalState>(event, "leptons").particles();
 
       // Retrieve clustered jets, sorted by pT, with a minimum pT cut
-      Jets jets = apply<FastJets>(event, "jets").jetsByPt(Cuts::pT > 3*GeV);
+      Jets jets = apply<FastJets>(event, "jets").jetsByPt(Cuts::pT > 30*GeV);
 
       // Remove all jets within dR < 0.2 of a dressed lepton
       idiscardIfAnyDeltaRLess(jets, leptons, 0.2);
 
       // Select jets ghost-associated to B-hadrons with a certain fiducial selection
-      Jets bjets = filter_select(jets, [](const Jet& jet) {
-        return  jet.bTagged(Cuts::pT > 5*GeV && Cuts::abseta < 2.5);
-      });
+      Jets bjets = filter_select(jets, hasBTag(Cuts::pT > 5*GeV && Cuts::abseta < 2.5));
 
       // Veto event if there are no b-jets
-      if (bjets.empty())  vetoEvent;
+      if (bjets.empty()) vetoEvent;
 
       // Apply a missing-momentum cut
       if (apply<MissingMomentum>(event, "MET").missingPt() < 30*GeV)  vetoEvent;
