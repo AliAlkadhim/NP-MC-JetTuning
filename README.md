@@ -15,15 +15,17 @@ docker run --rm -v /home/ali/Desktop/Pulled_Github_Repositories/NP-MC-JetTuning:
 ```
 
 
-3. Get HEPMC
+2. Get HEPMC3
 ```
- git clone https://gitlab.cern.ch/hepmc/HepMC3.git
-mkdir hepmc3-build
-  cd hepmc3-build
+source install_hepmc3.sh
 ```
 
 3. Get the pythia example files, compile main42 and test it
-mkdir pythia && cd pythia && wget https://pythia.org/download/pythia83/pythia8309.tar && tar -xf pythia8309.tar && export PYTHIA_EXAMPLE_DIR=/work/pythia/pythia8309/examples
+
+```
+mkdir pythia && cd pythia && wget https://pythia.org/download/pythia83/pythia8309.tar 
+&& tar -xf pythia8309.tar
+```
 
 3. Compile `main42.cc` for your system
 
