@@ -37,6 +37,7 @@ process.options = cms.untracked.PSet(
 #process.RandomNumberGeneratorService.generator.initialSeed = int(os.getenv('SEED'))
 
 # Production Info
+# Ali: maybe I can produce my own pythia hepmc or root here?
 process.configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('Configuration/GenProduction/python/ThirtheenTeV/QCD_Pt-15To7000_TuneCUETP8M1_Flat_13TeV-pythia8_cff.py nevts:10000'),
     name = cms.untracked.string('Applications'),
@@ -66,24 +67,38 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
+
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     PythiaParameters = cms.PSet(
         parameterSets = cms.vstring('pythia8CommonSettings', 
             'pythia8CUEP8M1Settings', 
             'processParameters'),
-        processParameters = cms.vstring('HardQCD:all = on', 
+        # PARAMETERS RELATING TO THE PROCESS
+        processParameters = cms.vstring(
+            'HardQCD:all = on', 
           #  'PhaseSpace:pTHatMin = 15', 
+          # Previously had
+          #PhaseSpace:pTHatMin     = 10       ! minimum pT of parton (GeV)
             'PhaseSpace:pTHatMin = 2500',  
             'PhaseSpace:pTHatMax = 7000', 
             'PhaseSpace:bias2Selection = on', 
             'PhaseSpace:bias2SelectionPow = 4.5', 
-          #  'PhaseSpace:bias2SelectionRef = 15.'),
-            'PhaseSpace:bias2SelectionRef = 2500.'), 
-        pythia8CUEP8M1Settings = cms.vstring('Tune:pp 14', 
+          'PhaseSpace:bias2SelectionRef = 15.'),
+            # 'PhaseSpace:bias2SelectionRef = 2500.
+            '), 
+        #TUNE PARAMETERS
+        # See https://gitlab.cern.ch/cms-sw/cmssw/-/blob/master/Configuration/Generator/python/Pythia8CUEP8M1Settings_cfi.py
+        
+        ##Tune:pp=18 #15 for CMS UE Tune CUETP8S1-CTEQ6L1, the default is Monash2013, 18 for CUETP8M1-NNPDF2.3LO
+        
+        pythia8CUEP8M1Settings = cms.vstring(
+            'Tune:pp 14', 
             'Tune:ee 7', 
+            # CHECK THE 2 PARAMETERS BELOW
             'MultipartonInteractions:pT0Ref=2.4024', 
             'MultipartonInteractions:ecmPow=0.25208', 
             'MultipartonInteractions:expPow=1.6'),
+        # https://gitlab.cern.ch/cms-sw/cmssw/-/blob/master/Configuration/Generator/python/Pythia8CommonSettings_cfi.py
         pythia8CommonSettings = cms.vstring('Tune:preferLHAPDF = 2', 
             'Main:timesAllowErrors = 10000', 
             'Check:epTolErr = 0.01', 
@@ -95,6 +110,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
             'ParticleDecays:allowPhotonRadiation = on')
     ),
     comEnergy = cms.double(13000.0),
+    #check what should be done to the crossSection value
     crossSection = cms.untracked.double(2022100000.0),
     filterEfficiency = cms.untracked.double(1.0),
     maxEventsToPrint = cms.untracked.int32(1),

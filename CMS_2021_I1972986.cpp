@@ -32,7 +32,6 @@ namespace Rivet {
       }
     }
 
-
     /// Per-event analysis
     void analyze(const Event &event) {
 
@@ -41,6 +40,7 @@ namespace Rivet {
       const Jets& jetsAK4 = fjAK4.jets(Cuts::ptIn(97*GeV, 3103*GeV) && Cuts::absrap < 2.0);
       for (const Jet& j : jetsAK4) {
         _hist_sigmaAK4.fill(j.absrap(), j.pT());
+        // note that in rivet 2 we have to do  _hist_sigmaAK7.fill(j.absrap(), j.pT(), weight);
       }
 
       // AK7 jets

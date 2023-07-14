@@ -26,3 +26,5 @@ cmenv
 scram b -j `nproc`
 ```
 4. make `Ntupliser/src` directory and put RivetNtupliser.c
+
+5. Make Configuration file in `/python`. See https://github.com/cms-sw/cmssw/tree/master/Configuration/Generator/python for some of the MC generation parameters
