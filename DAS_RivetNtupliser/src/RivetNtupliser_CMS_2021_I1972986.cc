@@ -19,7 +19,7 @@ namespace Rivet {
   class RivetNtupliser_CMS_2021_I1972986 : public Analysis {
 
      DAS::Event * event_;
-     vector<DAS::GenJet> * genJets_;
+     vector<DAS::GenJet> * genJets_AK4;
     //  vector<DAS::RecJet> * recJets_;
 
     // char rec[] = "FALSE";
@@ -41,9 +41,9 @@ namespace Rivet {
        event_ = new DAS::Event;
        tree->Branch("event", &event_);
 
-       genJets_ = new vector<DAS::GenJet>;
-       genJets_->reserve(25);  // estimation of the number of Gen jets in the event
-	   tree->Branch("genJets", &genJets_);
+       genJets_AK4 = new vector<DAS::GenJet>;
+       genJets_AK4->reserve(25);  // estimation of the number of Gen jets in the event
+	   tree->Branch("genJets_AK4", &genJets_AK4);
 
 
       //  recJets_ = new vector<DAS::RecJet>;
@@ -55,16 +55,19 @@ namespace Rivet {
        // Initialize the projections
        const FinalState fs;
        declare(FastJets(fs, FastJets::ANTIKT, 0.4), "JetsAK4"); // TODO: make parameter for 0.4?
+      declare(FastJets(fs, FastJets::ANTIKT, 0.7), "JetsAK7");
+
+
 
       //  declare(SmearedJets(FastJets(fs, FastJets::ANTIKT, 0.4), JET_SMEAR_CMS_RUN2), "JetsAK4Rreco");
 
-       //BOOK HISTOGRAMS?
+       //BOOK RIVET HISTOGRAMS?
              // Book sets of histograms, binned in absolute rapidity
-      // Histo1DPtr tmp;
-      // for(int y = 0; y < 4; ++y) {
-      //    _hist_sigmaAK4.add(0.5*y, 0.5*(y+1), book(tmp,y+1, 1, 1)); // d0?-x01-y01
-      //    _hist_sigmaAK7.add(0.5*y, 0.5*(y+1), book(tmp,20+y+1, 1, 1)); // d2?-x01-y01
-      // }
+      Histo1DPtr tmp;
+      for(int y = 0; y < 4; ++y) {
+         _hist_sigmaAK4.add(0.5*y, 0.5*(y+1), book(tmp,y+1, 1, 1)); // d0?-x01-y01
+         _hist_sigmaAK7.add(0.5*y, 0.5*(y+1), book(tmp,20+y+1, 1, 1)); // d2?-x01-y01
+      }
      }
 
 
@@ -72,7 +75,7 @@ namespace Rivet {
      void analyze(const Event &event) {
      
        event_->clear();
-       genJets_->clear();
+       genJets_AK4->clear();
       //      if (rec == "TRUE") {
       //  recJets_->clear();
       //      }
@@ -89,15 +92,21 @@ namespace Rivet {
        // AK4 gen jets
        const FastJets& fjAK4 = apply<FastJets>(event, "JetsAK4"); // TODO: make parameter for AK4?
        const Jets& jetsAK4 = fjAK4.jets(Cuts::ptIn(97*GeV, 3103*GeV) && Cuts::absrap < 2.0); // Ntupliser cuts 
+       
       
        for (const Jet& j : jetsAK4) {
-         // Defined in Core/Objects/interface/Jet.h 
+         // Defined in DAS:Core/Objects/interface/Jet.h 
            DAS::GenJet genJet;
 		   genJet.p4.SetPt(j.pT());
 		   genJet.p4.SetEta(j.eta());
            genJet.p4.SetPhi(j.phi()); 
            genJet.p4.SetM(j.mass()); 
-           genJets_->push_back(genJet);
+           genJets_AK4->push_back(genJet);
+
+           /// FILL RIVET HISTOGRAM
+           _hist_sigmaAK4.fill(j.absrap(), j.pT());
+
+           
        }
 
        // AK4 rec jets
@@ -123,7 +132,11 @@ namespace Rivet {
 	
         tree->Write();
         file->Close();
-	 
+
+        //FINALIZE RIVET HISTOGRAMS
+      _hist_sigmaAK4.scale(crossSection()/picobarn/sumOfWeights()/2.0, this);
+      BinnedHistogram _hist_sigmaAK4;
+
      }
 
   };
