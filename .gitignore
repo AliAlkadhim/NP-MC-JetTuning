@@ -1,6 +1,8 @@
 __pycache__
 *.py[cod]
 *$py.class
+*.root
+
 
 # Distribution / packaging 
 .Python build/ 
