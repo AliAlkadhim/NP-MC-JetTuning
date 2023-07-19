@@ -19,7 +19,7 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 
 2 Install [Darwin](https://gitlab.cern.ch/DasAnalysisSystem/Darwin)
 ```
-https://gitlab.cern.ch/DasAnalysisSystem/Darwin.git
+git clone https://gitlab.cern.ch/DasAnalysisSystem/Darwin.git
 cd Darwin
 source setup
 make clean
